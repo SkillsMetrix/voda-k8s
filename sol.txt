@@ -1,1 +1,23 @@
-https://www.dropbox.com/scl/fo/3g9kt7te107adtf2i8an6/AFYm9PsAmz79oJbydGXLF-g?rlkey=t42x787lxz5nhi3us9zhh8rxx&dl=0
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-rs
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        app: nginx-app
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+        ports:
+        - containerPort: 80
+  selector:
+    matchLabels:
+      app: nginx-app
+    matchExpressions:
+      - {key: tier, operator: In, values: [frontend]}
