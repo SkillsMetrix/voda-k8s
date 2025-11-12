@@ -1,16 +1,25 @@
-apiVersion: apps/v1
-kind: DaemonSet
+apiVersion: v1
+kind: Pod
 metadata:
-  name: fluentd-ds
+  name: sidecar-pod
+
 spec:
-  template:
-    metadata:
-      labels:
-        name: fluentd
-    spec:
-      containers:
-        - name: fluentd
-          image: gcr.io/google-containers/fluentd-elasticsearch:1.20
-  selector:
-    matchLabels:
-      name: fluentd
+  volumes:
+    - name: logs
+      emptyDir: {}
+
+  containers:
+  - name: app-container
+    image: alpine
+    command: ["/bin/sh"]
+    args: ["-c","while true; do date >> /var/log/app.log; sleep 5; done"]
+    volumeMounts:
+      - name: logs
+        mountPath: /var/log
+  
+  - name: log-exporter
+    image: nginx
+    
+    volumeMounts:
+      - name: logs
+        mountPath: /usr/share/nginx/html
